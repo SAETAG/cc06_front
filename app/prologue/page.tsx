@@ -367,9 +367,9 @@ const DynamicPrologue = () => {
               <h2 className="text-2xl sm:text-3xl font-bold text-yellow-300 drop-shadow-[0_0_8px_rgba(250,204,21,0.7)] animate-magical-appear">
                 さぁ、冒険を始めよう！
               </h2>
-              <Link href="/charasetting" className="block animate-magical-appear" style={{ animationDelay: "0.5s" }}>
+              <Link href="/home" className="block animate-magical-appear" style={{ animationDelay: "0.5s" }}>
                 <Button className="w-full sm:w-auto bg-teal-800 hover:bg-teal-900 text-yellow-300 drop-shadow-[0_0_5px_rgba(250,204,21,0.7)] font-medium py-2 px-4 rounded-lg border border-teal-600 transition-colors duration-200">
-                  冒険の準備を始める
+                  冒険を始める！
                 </Button>
               </Link>
             </div>
