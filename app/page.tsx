@@ -1,16 +1,48 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Scroll, Sparkles } from "lucide-react"
+// app/page.tsx
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Sparkles } from "lucide-react";
+import { silentLogin } from "@/lib/auth";
 
 export default function Home() {
-  // Array of clothing emojis
-  const clothingEmojis = ["👒", "👑", "👗", "👙", "👖", "✨", "🧤", "💃", "🦺", "🧦"]
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const handleLogin = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      console.log("Starting silent login...");
+      const result = await silentLogin();
+      console.log("Silent login successful:", result);
+      router.push("/home");
+    } catch (err: any) {
+      console.error("Login error:", err);
+      setError(err.message || "ログインに失敗しました");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 既存の背景やレイアウトのコードはそのまま残す
+  const clothingEmojis = [
+    "👒", "👑", "👗", "👙", "👖", "✨", "🧤", "💃", "🦺", "🧦",
+  ];
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-teal-950 p-4 relative overflow-hidden">
       {/* Sparkling clothing emojis in background */}
       <div className="absolute inset-0 overflow-hidden">
-        {[...Array(20)].map((_, i) => (
+        {mounted && [...Array(20)].map((_, i) => (
           <div
             key={i}
             className="absolute text-2xl float-animation"
@@ -62,29 +94,30 @@ export default function Home() {
         </div>
 
         <div className="pt-4 sm:pt-6 space-y-3 sm:space-y-4">
-          <Link href="/signup" className="block">
-            <Button className="w-full bg-teal-800 hover:bg-teal-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 border border-teal-600 transition-colors duration-200">
-              <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-200" />
-              <span className="text-yellow-300 drop-shadow-[0_0_5px_rgba(250,204,21,0.7)] text-sm sm:text-base">
-                新たな冒険へ
+          <Button
+            onClick={handleLogin}
+            className="w-full bg-teal-800 hover:bg-teal-700 text-white font-medium py-3 px-6 rounded-lg flex items-center justify-center gap-3 border border-teal-600 transition-colors duration-200"
+            disabled={loading}
+          >
+            <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-200" />
+            <span className="text-yellow-300 drop-shadow-[0_0_5px_rgba(250,204,21,0.7)] text-base sm:text-lg font-bold">
+              {loading ? "ログイン中..." : "冒険を始める"}
+            </span>
+          </Button>
+          {error && (
+            <p className="text-red-500 text-sm">
+              {error}
+              <br />
+              <span className="text-xs text-red-400">
+                ブラウザのコンソールで詳細を確認できます
               </span>
-            </Button>
-          </Link>
-
-          <Link href="/login" className="block">
-            <Button className="w-full bg-teal-800 hover:bg-teal-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 border border-teal-600 transition-colors duration-200">
-              <Scroll className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-200" />
-              <span className="text-yellow-300 drop-shadow-[0_0_5px_rgba(250,204,21,0.7)] text-sm sm:text-base">
-                冒険の続きへ
-              </span>
-            </Button>
-          </Link>
+            </p>
+          )}
         </div>
       </div>
 
       <div className="absolute bottom-0 w-full h-16 bg-teal-950 opacity-90 z-0"></div>
       <div className="absolute bottom-0 w-full h-8 bg-teal-950 opacity-95 z-0"></div>
     </div>
-  )
+  );
 }
-
