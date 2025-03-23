@@ -42,7 +42,7 @@ const DynamicPrologue = () => {
     "かつて、クローゼット王国は調和と美しさに満ちた世界でした。\nすべての衣装や小物は、まるで魔法のようにその居場所を知り、王国は輝いていたのです。",
     "しかし、ある日、突如として現れた『混沌の呪い』が王国に暗い影を落としました。\n棚は乱れ、衣装は迷宮のごとく入り組み、かつての秩序は音を立てて崩れ去っていったのです。",
     "勇者よ、あなたにのみ託された使命がある。\n散らかり果てた王国に再び秩序をもたらし、失われた美しさを取り戻すのです。\n『片方見つからないソックスライム』、そして『リバウンドラゴン』…彼らを打ち倒し、再び平和と輝きに満ちたクローゼットを取り戻すのです！",
-    "冒険の始まり：\n\nここからあなたは、自らの『職業』を選び、断捨離の剣士、空間デザインの魔法使い、または時短の錬金術師として、各エリアに潜む混沌を一掃するための旅に出ます。\n初めは小さなクエストから始まり、ひとつひとつの達成があなたを強くします。\nそしてクローゼット王国が再び輝きを取り戻すまさにその時、あなたは国を統治する偉大な王になるのです。\n\nさぁ選ばれし勇者よ、行ってらっしゃい！",
+    "冒険の始まり：\n\nここからあなたは勇者として、各エリアに潜む混沌を一掃するための旅に出ます。\n初めは小さなクエストから始まり、ひとつひとつの達成があなたを強くします。\nそしてクローゼット王国が再び輝きを取り戻すまさにその時、あなたは国を統治する偉大な王になるのです。\n\nさぁ選ばれし勇者よ、行ってらっしゃい！",
     "",
   ]
 
@@ -98,13 +98,6 @@ const DynamicPrologue = () => {
     // Clear any existing timers when stage changes
     clearAllTimers()
 
-    // Disable auto-advance for stage 4
-    if (stage === 4) {
-      setAutoAdvance(false)
-    } else {
-      setAutoAdvance(true)
-    }
-
     if (stage > 0 && stage < 6) {
       console.log(`Showing stage ${stage}`)
       setStageProgress(0)
@@ -121,16 +114,14 @@ const DynamicPrologue = () => {
         })
       }, 80) // 8 seconds total duration (80ms * 100)
 
-      // Auto advance to next stage after a delay (except for stage 4)
-      if (autoAdvance && stage < 4) {
-        stageTimerRef.current = setTimeout(() => {
-          console.log(`Advancing to stage ${stage + 1}`)
-          clearInterval(progressInterval)
-          if (stage < 5) {
-            setStage(stage + 1)
-          }
-        }, 8000) // Show each stage for 8 seconds
-      }
+      // Auto advance to next stage after a delay
+      stageTimerRef.current = setTimeout(() => {
+        console.log(`Advancing to stage ${stage + 1}`)
+        clearInterval(progressInterval)
+        if (stage < 5) {
+          setStage(stage + 1)
+        }
+      }, 8000) // Show each stage for 8 seconds
 
       return () => {
         clearInterval(progressInterval)
@@ -141,7 +132,7 @@ const DynamicPrologue = () => {
     return () => {
       clearAllTimers()
     }
-  }, [stage, autoAdvance])
+  }, [stage])
 
   // Initialize audio
   useEffect(() => {
@@ -297,7 +288,7 @@ const DynamicPrologue = () => {
         )}
 
         {/* Content container */}
-        <div className="max-w-md w-full bg-opacity-90 p-6 sm:p-8 rounded-xl shadow-lg border-2 border-teal-700 z-10 relative bg-black bg-opacity-50">
+        <div className="max-w-md w-full bg-opacity-90 p-6 sm:p-8 rounded-xl shadow-lg border-2 border-teal-700 z-10 relative bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 bg-opacity-80">
           {/* Stage 0: Initial screen */}
           {stage === 0 && (
             <div className="text-center space-y-6">
@@ -306,7 +297,7 @@ const DynamicPrologue = () => {
               </h1>
               <p className="text-white text-sm sm:text-base">ボタンを押して物語を始めよう</p>
               <Button
-                className="w-full sm:w-auto bg-teal-800 hover:bg-teal-700 text-yellow-300 drop-shadow-[0_0_5px_rgba(250,204,21,0.7)] font-medium py-2 px-4 rounded-lg border border-teal-600"
+                className="w-full sm:w-auto bg-teal-800 hover:bg-teal-700 text-yellow-300 drop-shadow-[0_0_5px_rgba(250,204,21,0.7)] font-medium py-4 px-8 rounded-lg border border-teal-600 text-xl"
                 onClick={startPrologue}
               >
                 物語を始める
@@ -365,11 +356,18 @@ const DynamicPrologue = () => {
           {stage === 5 && (
             <div className="text-center space-y-6">
               <h2 className="text-2xl sm:text-3xl font-bold text-yellow-300 drop-shadow-[0_0_8px_rgba(250,204,21,0.7)] animate-magical-appear">
-                さぁ、冒険を始めよう！
+                さぁ、冒険を始めよう！まずはあなたの名前を教えてね！
               </h2>
+              <div className="animate-magical-appear" style={{ animationDelay: "0.3s" }}>
+                <input
+                  type="text"
+                  placeholder="あなたの名前を入力"
+                  className="w-full sm:w-auto bg-orange-800 text-yellow-300 placeholder-orange-400 border border-orange-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-transparent"
+                />
+              </div>
               <Link href="/home" className="block animate-magical-appear" style={{ animationDelay: "0.5s" }}>
-                <Button className="w-full sm:w-auto bg-teal-800 hover:bg-teal-900 text-yellow-300 drop-shadow-[0_0_5px_rgba(250,204,21,0.7)] font-medium py-2 px-4 rounded-lg border border-teal-600 transition-colors duration-200">
-                  冒険を始める！
+                <Button className="w-full sm:w-auto bg-teal-800 hover:bg-teal-900 text-yellow-300 drop-shadow-[0_0_5px_rgba(250,204,21,0.7)] font-medium py-4 px-8 rounded-lg border border-teal-600 transition-colors duration-200 text-xl">
+                  準備完了！いざ冒険へ！
                 </Button>
               </Link>
             </div>
