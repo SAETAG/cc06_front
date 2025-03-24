@@ -410,31 +410,6 @@ const DynamicPrologue = () => {
           )}
         </div>
       </div>
-
-      {/* 名前入力フォーム */}
-      {stage === 4 && (
-        <div className="absolute inset-0 flex items-center justify-center z-20">
-          <div className="bg-teal-800 p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold text-yellow-300 text-center">勇者よ、その名を告げよ</h2>
-              <Input
-                type="text"
-                value={playerName}
-                onChange={handleNameChange}
-                placeholder="3文字以上25文字以下で入力してください"
-                className="w-full"
-              />
-              <Button
-                onClick={handleUpdateDisplayName}
-                disabled={!isNameValid}
-                className="w-full bg-yellow-500 hover:bg-yellow-600 text-teal-900 font-bold"
-              >
-                準備完了！いざ冒険へ！
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
