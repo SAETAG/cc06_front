@@ -26,10 +26,15 @@ interface IPlayFabSettings {
 
 // ヘルパー: 入力をパースしてオブジェクトを返す
 function parseResponse(input: any): any {
+  // nullまたはundefinedの場合はnullを返す
+  if (!input) {
+    return null;
+  }
+
   // すでにオブジェクトならそのまま返す
   if (typeof input === "object") {
     // input が成功レスポンスの構造を持っているなら返す
-    if ("code" in input && "status" in input && "data" in input) {
+    if (input && "code" in input && "status" in input && "data" in input) {
       return input;
     }
     // もし input.error があれば再帰的にパースする
@@ -196,6 +201,13 @@ export function loginWithCustomID(): Promise<any> {
         }
         isRequestCompleted = true;
         return reject(new Error(errorMessage));
+      }
+
+      // 空のオブジェクトの場合は成功として扱う
+      if (typeof error === "object" && Object.keys(error).length === 0) {
+        console.log("PlayFab login successful (empty response)");
+        isRequestCompleted = true;
+        return resolve({});
       }
 
       // どちらにも該当しない場合
