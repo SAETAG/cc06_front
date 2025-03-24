@@ -204,7 +204,7 @@ export function loginWithCustomID(): Promise<any> {
       }
 
       // 空のオブジェクトの場合は成功として扱う
-      if (typeof error === "object" && Object.keys(error).length === 0) {
+      if (error && typeof error === "object" && Object.keys(error).length === 0) {
         console.log("PlayFab login successful (empty response)");
         isRequestCompleted = true;
         return resolve({});
