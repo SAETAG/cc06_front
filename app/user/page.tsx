@@ -4,18 +4,50 @@ import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Volume2, VolumeX, ArrowLeft, Home, Package, Trophy, Star } from "lucide-react"
+import { PlayFabClient } from "playfab-sdk"
+import { loginWithCustomID } from "@/lib/playfab"
 
 export default function UserPage() {
   const [isMuted, setIsMuted] = useState(false)
   const [audioLoaded, setAudioLoaded] = useState(false)
+  const [displayName, setDisplayName] = useState("")
   const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  // PlayFabからユーザー情報を取得
+  useEffect(() => {
+    const getPlayFabInfo = async () => {
+      try {
+        // まずカスタムIDでログイン
+        const loginResult = await loginWithCustomID()
+        if (!loginResult) {
+          console.error("PlayFab login failed")
+          return
+        }
+        console.log("PlayFab login successful:", loginResult)
+
+        // ログイン成功後、アカウント情報を取得
+        PlayFabClient.GetAccountInfo({}, (error, result) => {
+          if (error) {
+            console.error("PlayFab account info error:", error)
+            return
+          }
+          if (result?.data?.AccountInfo?.TitleInfo?.DisplayName) {
+            setDisplayName(result.data.AccountInfo.TitleInfo.DisplayName)
+          } else {
+            console.log("No display name found in account info")
+          }
+        })
+      } catch (error) {
+        console.error("PlayFab info fetch error:", error)
+      }
+    }
+
+    getPlayFabInfo()
+  }, [])
 
   // ユーザー情報（実際のアプリではこれらはデータベースやローカルストレージから取得する）
   const userInfo = {
-    name: "勇者名", // プレイヤーネームもDBから取得する形に変更
-    job: "断捨離の剣士",
-    boss: "リバウンドラゴン",
-    reward: "クリスタルクローゼット",
+    name: displayName || "勇者名", // PlayFabの表示名がない場合はデフォルト名を使用
     exp: 1250, // 獲得経験ポイント数
     clearedStages: "ステージ８", // クリア済ステージ
   }
@@ -145,24 +177,6 @@ export default function UserPage() {
             <div className="flex items-center justify-between bg-teal-800 p-3 rounded-lg border border-teal-700">
               <span className="text-white font-medium">プレイヤーネーム：</span>
               <span className="text-yellow-300 font-bold">{userInfo.name}</span>
-            </div>
-
-            {/* Job */}
-            <div className="flex items-center justify-between bg-teal-800 p-3 rounded-lg border border-teal-700">
-              <span className="text-white font-medium">職業：</span>
-              <span className="text-yellow-300 font-bold">{userInfo.job}</span>
-            </div>
-
-            {/* Boss */}
-            <div className="flex items-center justify-between bg-teal-800 p-3 rounded-lg border border-teal-700">
-              <span className="text-white font-medium">ボス：</span>
-              <span className="text-yellow-300 font-bold">{userInfo.boss}</span>
-            </div>
-
-            {/* Reward */}
-            <div className="flex items-center justify-between bg-teal-800 p-3 rounded-lg border border-teal-700">
-              <span className="text-white font-medium">最終報酬：</span>
-              <span className="text-yellow-300 font-bold">{userInfo.reward}</span>
             </div>
 
             {/* Experience Points */}

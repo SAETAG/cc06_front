@@ -24,7 +24,15 @@ export default function Home() {
       console.log("Starting silent login...");
       const result = await silentLogin();
       console.log("Silent login successful:", result);
-      router.push("/home");
+      
+      // 新規ユーザーと既存ユーザーで分岐
+      if (result.newlyCreated) {
+        console.log("New user detected, redirecting to prologue...");
+        router.push("/prologue");
+      } else {
+        console.log("Existing user detected, redirecting to home...");
+        router.push("/home");
+      }
     } catch (err: any) {
       console.error("Login error:", err);
       setError(err.message || "ログインに失敗しました");
