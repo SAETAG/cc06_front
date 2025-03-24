@@ -9,6 +9,10 @@ declare global {
         request: any,
         callback: (result: any, error: any) => void
       ) => void;
+      UpdateUserTitleDisplayName: (
+        request: { DisplayName: string },
+        callback: (result: any, error: any) => void
+      ) => void;
     };
   }
 }
@@ -208,5 +212,56 @@ export function loginWithCustomID(): Promise<any> {
 
     // PlayFab APIを呼び出す
     PlayFabClient.LoginWithCustomID(request, callback);
+  });
+}
+
+/**
+ * ユーザーの表示名を更新する
+ */
+export function updateUserTitleDisplayName(displayName: string): Promise<any> {
+  return new Promise((resolve, reject) => {
+    if (typeof window === "undefined") {
+      return reject(new Error("ブラウザ環境でのみ利用可能です"));
+    }
+
+    if (!PlayFabClient.settings.titleId) {
+      return reject(new Error("PlayFabの設定が正しく行われていません"));
+    }
+
+    const request = {
+      DisplayName: displayName
+    };
+
+    const callback = (result: any, error: any) => {
+      // 空のオブジェクトの場合は error を null にする
+      if (error && typeof error === "object" && Object.keys(error).length === 0) {
+        error = null;
+      }
+
+      // まず result がある場合はそちらを優先する
+      if (result && result.data) {
+        console.log("表示名を更新しました:", result);
+        return resolve(result.data);
+      }
+
+      // result がない場合、error から成功レスポンスを試みる
+      const parsed = parseResponse(error);
+      if (parsed && parsed.code === 200 && parsed.status === "OK") {
+        console.log("表示名を更新しました (via parsed error):", parsed);
+        return resolve(parsed.data);
+      }
+
+      // エラーがある場合
+      if (error) {
+        console.error("表示名の更新に失敗しました:", error);
+        return reject(new Error("表示名の更新に失敗しました"));
+      }
+
+      // 成功とみなす（空のオブジェクトが返ってきた場合）
+      console.log("表示名を更新しました");
+      resolve({});
+    };
+
+    PlayFabClient.UpdateUserTitleDisplayName(request, callback);
   });
 }

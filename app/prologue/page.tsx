@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Volume2, VolumeX, FastForward } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { Input } from "@/components/ui/input"
+import { updateUserTitleDisplayName } from "@/lib/playfab"
+import { useRouter } from "next/navigation"
 
 // Base component structure without any dynamic content
 const StaticPrologueBase = () => (
@@ -26,11 +29,14 @@ const StaticPrologueBase = () => (
 
 // Dynamic component that will only be rendered on the client
 const DynamicPrologue = () => {
+  const router = useRouter()
   const [stage, setStage] = useState(0)
   const [prevStage, setPrevStage] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
+  const [playerName, setPlayerName] = useState("")
+  const [isNameValid, setIsNameValid] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const stageTimerRef = useRef<NodeJS.Timeout | null>(null)
   const [stageProgress, setStageProgress] = useState(0) // 0-100 for progress within a stage
@@ -219,6 +225,32 @@ const DynamicPrologue = () => {
     })
   }
 
+  // 名前のバリデーション
+  const validateName = (name: string) => {
+    return name.length >= 3 && name.length <= 25 && !name.match(/^\s*$/);
+  }
+
+  // 名前入力のハンドラー
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const name = e.target.value;
+    setPlayerName(name);
+    setIsNameValid(validateName(name));
+  }
+
+  // 表示名更新のハンドラー
+  const handleUpdateDisplayName = async () => {
+    if (!isNameValid) return;
+    
+    try {
+      await updateUserTitleDisplayName(playerName);
+      // 成功したら/homeへ遷移
+      router.push("/home");
+    } catch (error) {
+      console.error("表示名の更新に失敗しました:", error);
+      // エラーハンドリング（必要に応じて）
+    }
+  }
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Background layers for smooth transitions */}
@@ -359,21 +391,50 @@ const DynamicPrologue = () => {
                 さぁ、冒険を始めよう！まずはあなたの名前を教えてね！
               </h2>
               <div className="animate-magical-appear" style={{ animationDelay: "0.3s" }}>
-                <input
+                <Input
                   type="text"
-                  placeholder="あなたの名前を入力"
-                  className="w-full sm:w-auto bg-orange-800 text-yellow-300 placeholder-orange-400 border border-orange-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-transparent"
+                  value={playerName}
+                  onChange={handleNameChange}
+                  placeholder="3文字以上25文字以下で入力してください"
+                  className="w-full"
                 />
               </div>
-              <Link href="/home" className="block animate-magical-appear" style={{ animationDelay: "0.5s" }}>
-                <Button className="w-full sm:w-auto bg-teal-800 hover:bg-teal-900 text-yellow-300 drop-shadow-[0_0_5px_rgba(250,204,21,0.7)] font-medium py-4 px-8 rounded-lg border border-teal-600 transition-colors duration-200 text-xl">
-                  準備完了！いざ冒険へ！
-                </Button>
-              </Link>
+              <Button
+                onClick={handleUpdateDisplayName}
+                disabled={!isNameValid}
+                className="w-full bg-yellow-500 hover:bg-yellow-600 text-teal-900 font-bold"
+              >
+                準備完了！いざ冒険へ！
+              </Button>
             </div>
           )}
         </div>
       </div>
+
+      {/* 名前入力フォーム */}
+      {stage === 4 && (
+        <div className="absolute inset-0 flex items-center justify-center z-20">
+          <div className="bg-teal-800 p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold text-yellow-300 text-center">勇者よ、その名を告げよ</h2>
+              <Input
+                type="text"
+                value={playerName}
+                onChange={handleNameChange}
+                placeholder="3文字以上25文字以下で入力してください"
+                className="w-full"
+              />
+              <Button
+                onClick={handleUpdateDisplayName}
+                disabled={!isNameValid}
+                className="w-full bg-yellow-500 hover:bg-yellow-600 text-teal-900 font-bold"
+              >
+                準備完了！いざ冒険へ！
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
